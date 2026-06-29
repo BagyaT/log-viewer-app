@@ -392,18 +392,12 @@ body {
 
 .log-cards-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   padding: 16px;
 }
 
-@media (max-width: 1200px) {
-  .log-cards-container {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .log-cards-container {
     grid-template-columns: repeat(2, 1fr);
   }
