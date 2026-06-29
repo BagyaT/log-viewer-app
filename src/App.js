@@ -1,37 +1,19 @@
 import React, { useState } from 'react';
 import Login from './components/Login';
 import LogViewer from './components/LogViewer';
-import DataModal from './components/DataModal';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [credentials, setCredentials] = useState(null);
-  const [apiUrl, setApiUrl] = useState('');
-  const [selectedData, setSelectedData] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleLogin = (userId, password, url) => {
     setCredentials({ userId, password });
-    setApiUrl(url);
     setIsAuthenticated(true);
-    // Immediately trigger log fetch after login - no waiting for useEffect
-    // This makes the page appear faster by starting the API call right away
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
     setCredentials(null);
-    setApiUrl('');
-  };
-
-  const handleViewData = (data) => {
-    setSelectedData(data);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedData(null);
   };
 
   return (
@@ -54,14 +36,8 @@ function App() {
               Logout
             </button>
           </header>
-          <LogViewer
-            credentials={credentials}
-            onViewData={handleViewData}
-          />
+          <LogViewer credentials={credentials} />
         </>
-      )}
-      {isModalOpen && selectedData && (
-        <DataModal data={selectedData} onClose={handleCloseModal} />
       )}
     </div>
   );
