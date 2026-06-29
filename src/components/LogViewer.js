@@ -52,10 +52,13 @@ function LogViewer({ credentials, apiUrl, onViewData }) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch logs');
+        const errorText = await response.text();
+        console.error('API error response:', response.status, errorText);
+        throw new Error(`Server error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('API response:', data);
       // API returns { logs: [...], pagination: {...} }
       // Map API field names to frontend field names
       console.log(data)
@@ -81,7 +84,8 @@ function LogViewer({ credentials, apiUrl, onViewData }) {
         }));
       }
     } catch (err) {
-      setError('Failed to load logs. Please try again.');
+      console.error('Fetch logs error:', err);
+      setError('Failed to load logs. Please try again. ' + err.message);
     } finally {
       setLoading(false);
     }
