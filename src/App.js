@@ -39,7 +39,15 @@ function App() {
       ) : (
         <>
           <header className="header">
-            <h1>Log Viewer</h1>
+            <div className="header-left">
+              <img
+                src={`${process.env.PUBLIC_URL}/Amplifi Logo_whitebg.svg`}
+                alt="Amplifi Logo"
+                className="header-logo"
+              />
+              <h1>Log Viewer</h1>
+            </div>
+
             <button className="btn-logout" onClick={handleLogout}>
               Logout
             </button>

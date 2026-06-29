@@ -27,10 +27,10 @@ function Login({ onLogin }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          url: API_URL, 
-          userId, 
-          password 
+        body: JSON.stringify({
+          url: API_URL,
+          userId,
+          password,
         }),
       });
 
@@ -38,7 +38,8 @@ function Login({ onLogin }) {
         throw new Error('Authentication failed');
       }
 
-      const data = await response.json();
+      await response.json();
+
       onLogin(userId, password, API_URL);
     } catch (err) {
       setError('Invalid credentials or API URL');
@@ -50,8 +51,17 @@ function Login({ onLogin }) {
   return (
     <div className="login-container">
       <div className="login-box">
-        <h1>Log Viewer Login</h1>
+        {/* Logo */}
+        <img
+          src={`${process.env.PUBLIC_URL}/Amplifi Logo_whitebg.svg`}
+          alt="Company Logo"
+          className="login-logo"
+        />
+
+        <h1>Login</h1>
+
         {error && <div className="error-message">{error}</div>}
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>User ID</label>
@@ -63,6 +73,7 @@ function Login({ onLogin }) {
               required
             />
           </div>
+
           <div className="form-group">
             <label>Password</label>
             <input
@@ -73,6 +84,7 @@ function Login({ onLogin }) {
               required
             />
           </div>
+
           <button type="submit" className="btn" disabled={isLoading}>
             {isLoading ? 'Logging in...' : 'Login'}
           </button>

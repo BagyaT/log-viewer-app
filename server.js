@@ -18,14 +18,14 @@ const API_PASS = 'password123';
 // Proxy endpoint to handle API requests with pagination
 app.post('/api/proxy', async (req, res) => {
   const { userId, password, action, body, page = 1, limit = 20, date_from, date_to } = req.body;
-  
+
   console.log('Server received:', { date_from, date_to, page, limit });
-  
+
   try {
     // Use provided credentials or fallback to hardcoded ones
     const user = userId || API_USER;
     const pass = password || API_PASS;
-    
+
     const headers = {
       'Content-Type': 'application/json',
       'Authorization': `Basic ${Buffer.from(`${user}:${pass}`).toString('base64')}`,
@@ -46,11 +46,11 @@ app.post('/api/proxy', async (req, res) => {
       method: 'GET',
       headers,
     });
-    
+
     const data = await response.json();
-    
+
     console.log('API Response:', JSON.stringify(data).substring(0, 500));
-    
+
     // Handle Lambda response - it returns {status, count, results}
     // Handle pagination - sort by date descending to show most recent first
     let allLogs = Array.isArray(data) ? data : (data.results || data.logs || []);
@@ -59,10 +59,11 @@ app.post('/api/proxy', async (req, res) => {
       // Extract conversation_id from requesturi (e.g., "api.openai.com/v1/chat/completions?conversation_id=93")
       let conversationId = '';
       if (log.requesturi) {
+        console.log(log.requesturi)
         const match = log.requesturi.match(/conversation_id=([^&]+)/);
         conversationId = match ? match[1] : '';
       }
-      
+
       // Extract SENSITIVE_INFO from sensitivedetail (e.g., "Redirect | SENSITIVE_INFO: paracetamol	RULE_NAME: Poisoning")
       let triggerDetails = '';
       if (log.sensitivedetail) {
@@ -71,7 +72,7 @@ app.post('/api/proxy', async (req, res) => {
           triggerDetails = `SENSITIVE_INFO: ${match[1]}\tRULE_NAME: ${match[2]}`;
         }
       }
-      
+
       return {
         'Event Name': log.event_name || '',
         'Conversation Id': conversationId,
@@ -86,7 +87,7 @@ app.post('/api/proxy', async (req, res) => {
         requesturi: log.requesturi,
       };
     });
-    
+
     // Sort by date descending (most recent first) - Lambda returns 'date' field
     transformedLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
     const totalLogs = transformedLogs.length;
@@ -94,7 +95,7 @@ app.post('/api/proxy', async (req, res) => {
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
     const paginatedLogs = transformedLogs.slice(startIndex, endIndex);
-    
+
     res.json({
       logs: paginatedLogs,
       pagination: {
@@ -113,7 +114,7 @@ app.post('/api/proxy', async (req, res) => {
 // Proxy endpoint to fetch S3 data
 app.post('/api/fetch-data', async (req, res) => {
   const { url, userId, password } = req.body;
-  
+
   try {
     const headers = {
       'Authorization': `Basic ${Buffer.from(`${userId}:${password}`).toString('base64')}`,
@@ -121,7 +122,7 @@ app.post('/api/fetch-data', async (req, res) => {
 
     const response = await fetch(url, { headers });
     const contentType = response.headers.get('content-type') || '';
-    
+
     let data;
     if (contentType.includes('application/json')) {
       data = await response.json();
@@ -134,7 +135,7 @@ app.post('/api/fetch-data', async (req, res) => {
         data = text;
       }
     }
-    
+
     res.json(data);
   } catch (error) {
     console.error('Fetch data error:', error);
@@ -144,8 +145,8 @@ app.post('/api/fetch-data', async (req, res) => {
 
 // Root route - serve React app or return status
 app.get('/', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     message: 'Log Viewer API Proxy Server',
     endpoints: {
       proxy: 'POST /api/proxy',

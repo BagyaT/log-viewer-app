@@ -49,16 +49,18 @@ function LogViewer({ credentials, apiUrl, onViewData }) {
 
       const data = await response.json();
       // API returns { logs: [...], pagination: {...} }
+      // Map API field names to frontend field names
+      console.log(data)
       const logsArray = (data.logs || []).map((log, index) => ({
         id: ((pagination.page - 1) * pagination.limit) + index + 1,
-        title: log['Event Name'] || `Log ${index + 1}`,
-        eventName: log['Event Name'],
-        conversationId: log['Conversation Id'],
-        eventTimestamp: log['Event Timestamp'],
-        triggerDetails: log['Trigger Details'],
-        eventTriggered: log['Event Triggered'],
-        date: log['Event Timestamp'],
-        status: log['Event Triggered'] || 'Available',
+        title: log.event_name || log['Event Name'] || `Log ${index + 1}`,
+        eventName: log.event_name || log['Event Name'],
+        conversationId: getConversationId(log.requesturi) || '',
+        eventTimestamp: log.incidenttimestamp || log['Event Timestamp'],
+        triggerDetails: extractIwsInfo(log.sensitivedetail) || log['Trigger Details'],
+        eventTriggered: log.contenttypedetected || log['Event Triggered'],
+        date: log.incidenttimestamp || log['Event Timestamp'],
+        status: log.contenttypedetected || log['Event Triggered'] || 'Available',
       }));
       setLogs(logsArray);
 
@@ -271,5 +273,17 @@ function formatDate(dateString) {
   const date = new Date(dateString);
   return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
 }
+function getConversationId(url) {
+  const match = url.match(/conversation_id=([^&]+)/);
+  return match ? match[1] : null;
+}
+function extractIwsInfo(log) {
+  const sensitiveMatch = log.match(/IWS_SENSITIVE_INFO:\s*(.*?)\s*IWS_RULE_NAME:/);
+  const ruleMatch = log.match(/IWS_RULE_NAME:\s*(.*)$/);
 
+  const sensitiveInfo = sensitiveMatch ? sensitiveMatch[1].trim() : "";
+  const ruleName = ruleMatch ? ruleMatch[1].trim() : "";
+
+  return `SENSITIVE_INFO: ${sensitiveInfo}\nRULE_NAME: ${ruleName}`;
+}
 export default LogViewer;
