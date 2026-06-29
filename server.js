@@ -55,6 +55,14 @@ app.post('/api/proxy', async (req, res) => {
       headers,
     });
 
+    console.log('External API response status:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('External API error:', response.status, errorText);
+      throw new Error(`External API error: ${response.status} - ${errorText}`);
+    }
+
     const data = await response.json();
 
     console.log('API Response:', JSON.stringify(data).substring(0, 500));
