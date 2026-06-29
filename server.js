@@ -9,11 +9,12 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// Serve React static files in production
-const isProduction = process.env.NODE_ENV === 'production';
-if (isProduction) {
-  app.use(express.static(path.join(__dirname, 'build')));
-}
+// Serve React static files
+app.use(express.static(path.join(__dirname, 'build')));
+
+// For SPA fallback - check if build folder exists
+const buildPath = path.join(__dirname, 'build');
+const isProduction = require('fs').existsSync(buildPath);
 
 // Hardcoded API URL
 const API_BASE_URL = 'https://dq2bqs6vfe.execute-api.ap-southeast-1.amazonaws.com/logs';
@@ -173,11 +174,9 @@ app.get('/', (req, res) => {
 });
 
 // Serve React app for any unmatched route (SPA support)
-if (isProduction) {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
-  });
-}
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
