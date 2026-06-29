@@ -50,7 +50,7 @@ app.post('/api/proxy', async (req, res) => {
     const data = await response.json();
     
     // Handle pagination - sort by date descending to show most recent first
-    let allLogs = Array.isArray(data) ? data : (data.logs || []);
+    let allLogs = Array.isArray(data) ? data : (data.results || []);
     // Sort by last_modified descending (most recent first)
     allLogs.sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified));
     const totalLogs = allLogs.length;

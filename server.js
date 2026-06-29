@@ -63,12 +63,12 @@ app.post('/api/proxy', async (req, res) => {
         conversationId = match ? match[1] : '';
       }
       
-      // Extract IWS_SENSITIVE_INFO from sensitivedetail (e.g., "Redirect | IWS_SENSITIVE_INFO: paracetamol\tIWS_RULE_NAME: Poisoning")
+      // Extract SENSITIVE_INFO from sensitivedetail (e.g., "Redirect | SENSITIVE_INFO: paracetamol	RULE_NAME: Poisoning")
       let triggerDetails = '';
       if (log.sensitivedetail) {
-        const match = log.sensitivedetail.match(/IWS_SENSITIVE_INFO: ([^\t]+)\tIWS_RULE_NAME: ([^|]+)/);
+        const match = log.sensitivedetail.match(/SENSITIVE_INFO: ([^\t]+)\tRULE_NAME: ([^|]+)/);
         if (match) {
-          triggerDetails = `IWS_SENSITIVE_INFO: ${match[1]}\tIWS_RULE_NAME: ${match[2]}`;
+          triggerDetails = `SENSITIVE_INFO: ${match[1]}\tRULE_NAME: ${match[2]}`;
         }
       }
       

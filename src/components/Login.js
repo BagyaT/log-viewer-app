@@ -22,7 +22,7 @@ function Login({ onLogin }) {
 
     try {
       // Use proxy server to bypass CORS
-      const response = await fetch('/api/proxy', {
+      const response = await fetch('/api/fetch-data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
