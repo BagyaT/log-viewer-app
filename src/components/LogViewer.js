@@ -137,8 +137,10 @@ const LogViewer = ({ credentials }) => {
       {error && renderError()}
       {!loading && !error && logs.length === 0 && renderNoLogs()}
       {!loading && !error && logs.length > 0 && (
-        <div className="log-cards-container">
-          {logs.map((log, index) => renderLogCard(log, index))}
+        <>
+          <div className="log-cards-container">
+            {logs.map((log, index) => renderLogCard(log, index))}
+          </div>
           <div className="pagination">
             <button 
               className="btn-pagination" 
@@ -156,7 +158,7 @@ const LogViewer = ({ credentials }) => {
               Next
             </button>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
