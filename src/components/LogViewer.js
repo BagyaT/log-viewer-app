@@ -1,19 +1,30 @@
 import React, { useState, useEffect } from 'react';
 
+// Default to last 7 days to avoid fetching ALL logs (which is slow)
+const getDefaultDateFrom = () => {
+  const date = new Date();
+  date.setDate(date.getDate() - 7);
+  return date.toISOString().split('T')[0];
+};
+const getDefaultDateTo = () => {
+  return new Date().toISOString().split('T')[0];
+};
+
 function LogViewer({ credentials, apiUrl, onViewData }) {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [expandedLog, setExpandedLog] = useState(null);
   const [pagination, setPagination] = useState({ page: 1, limit: 20, totalLogs: 0, totalPages: 0 });
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [dateFrom, setDateFrom] = useState(getDefaultDateFrom());
+  const [dateTo, setDateTo] = useState(getDefaultDateTo());
 
-  // Fetch logs only when credentials, apiUrl, or page changes
-  // Date filters are applied manually via the Go button
+  // Fetch logs immediately when component mounts (credentials are already set from login)
   useEffect(() => {
-    fetchLogs();
-  }, [credentials, apiUrl, pagination.page]);
+    if (credentials?.userId && credentials?.password) {
+      fetchLogs();
+    }
+  }, []); // Empty array - only run once on mount
 
   const fetchLogs = async () => {
     if (!credentials?.userId || !credentials?.password) {
@@ -23,9 +34,6 @@ function LogViewer({ credentials, apiUrl, onViewData }) {
 
     setLoading(true);
     setError('');
-
-    // Debug: log what's being sent
-    console.log('Fetching logs with:', { dateFrom, dateTo, page: pagination.page });
 
     try {
       const response = await fetch('/api/proxy', {

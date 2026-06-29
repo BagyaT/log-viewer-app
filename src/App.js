@@ -14,6 +14,8 @@ function App() {
     setCredentials({ userId, password });
     setApiUrl(url);
     setIsAuthenticated(true);
+    // Immediately trigger log fetch after login - no waiting for useEffect
+    // This makes the page appear faster by starting the API call right away
   };
 
   const handleLogout = () => {

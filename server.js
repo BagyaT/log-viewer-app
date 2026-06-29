@@ -1,12 +1,19 @@
 const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
+const path = require('path');
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+
+// Serve React static files in production
+const isProduction = process.env.NODE_ENV === 'production';
+if (isProduction) {
+  app.use(express.static(path.join(__dirname, 'build')));
+}
 
 // Hardcoded API URL
 const API_BASE_URL = 'https://dq2bqs6vfe.execute-api.ap-southeast-1.amazonaws.com/logs';
@@ -64,12 +71,22 @@ app.post('/api/proxy', async (req, res) => {
         conversationId = match ? match[1] : '';
       }
 
-      // Extract SENSITIVE_INFO from sensitivedetail (e.g., "Redirect | SENSITIVE_INFO: paracetamol	RULE_NAME: Poisoning")
+      // Extract SENSITIVE_INFO from sensitivedetail (e.g., "Redirect | IWS_SENSITIVE_INFO: from	IWS_RULE_NAME: Impact")
       let triggerDetails = '';
       if (log.sensitivedetail) {
-        const match = log.sensitivedetail.match(/SENSITIVE_INFO: ([^\t]+)\tRULE_NAME: ([^|]+)/);
+        // Try to match IWS_SENSITIVE_INFO format first
+        let match = log.sensitivedetail.match(/IWS_SENSITIVE_INFO: ([^\t]+)\tIWS_RULE_NAME: ([^|]+)/);
         if (match) {
           triggerDetails = `SENSITIVE_INFO: ${match[1]}\tRULE_NAME: ${match[2]}`;
+        } else {
+          // Try original format as fallback
+          match = log.sensitivedetail.match(/SENSITIVE_INFO: ([^\t]+)\tRULE_NAME: ([^|]+)/);
+          if (match) {
+            triggerDetails = `SENSITIVE_INFO: ${match[1]}\tRULE_NAME: ${match[2]}`;
+          } else {
+            // Just use the raw sensitivedetail if no pattern matches
+            triggerDetails = log.sensitivedetail;
+          }
         }
       }
 
@@ -155,6 +172,13 @@ app.get('/', (req, res) => {
   });
 });
 
+// Serve React app for any unmatched route (SPA support)
+if (isProduction) {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  });
+}
+
 app.listen(PORT, () => {
-  console.log(`Proxy server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 // Hardcoded API URL
-const API_URL = 'https://dq2bqs6vfe.execute-api.ap-southeast-1.amazonaws.com/logs';
+const API_URL = 'https://dq2bqs6vfe.execute-api.ap-southeast-1.amazonaws.com/logs/query?source=api.openai.com';
 
 function Login({ onLogin }) {
   const [userId, setUserId] = useState('');
