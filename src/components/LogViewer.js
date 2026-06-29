@@ -57,12 +57,14 @@ const LogViewer = ({ userId, password }) => {
       setLoading(true);
       setError(null);
       const data = await fetchLogs(userId, password, pageNum, date_from, date_to);
+      console.log('API response:', data);
       setLogs(data.logs || []);
-      setTotalPages(Math.ceil((data.total || 0) / 20));
+      const total = data.pagination?.total || data.logs?.length || 0;
+      setTotalPages(Math.ceil(total / 20) || 1);
+      setLoading(false);
     } catch (err) {
       console.error('Failed to load logs:', err);
       setError('Failed to load logs. Please try again.');
-    } finally {
       setLoading(false);
     }
   };
