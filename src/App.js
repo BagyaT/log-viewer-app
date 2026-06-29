@@ -56,7 +56,6 @@ function App() {
           </header>
           <LogViewer
             credentials={credentials}
-            apiUrl={apiUrl}
             onViewData={handleViewData}
           />
         </>

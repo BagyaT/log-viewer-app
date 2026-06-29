@@ -36,9 +36,10 @@ const fetchLogs = async (userId, password, page = 1, date_from, date_to) => {
   }
 };
 
-const LogViewer = ({ userId, password }) => {
+const LogViewer = ({ credentials }) => {
+  const { userId, password } = credentials || {};
   const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
